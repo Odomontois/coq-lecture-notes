@@ -25,12 +25,14 @@ Qed.
 
 Lemma weak_peirce : ((((A -> B) -> A) -> A) -> B) -> B.
 Proof.
-Admitted.
+move => abaa. apply abaa => aba. apply aba => a. by apply abaa.
+Qed.
+
 
 Lemma imp_trans : (A -> B) -> (B -> C) -> (A -> C).
 Proof.
-Admitted.
-
+move => ab bc a. by apply bc, ab.
+Qed. 
 End IntLogic.
 
 
@@ -43,7 +45,8 @@ Variables (A B : Type) (x : A) (f : A -> B) (a b : bool) (vT vF : A).
 
 Lemma negbNE : ~~ ~~ b -> b.
 Proof.
-Admitted.
+by case b.
+Qed.
 
 (** Figure out what [involutive] and [injective] mean
     using Coq's interactive queries. Prove the lemmas.
@@ -51,59 +54,74 @@ Admitted.
 *)
 Lemma negbK : involutive negb.
 Proof.
-Admitted.
+rewrite /involutive /cancel => c. by case c.
+Qed.
 
 Lemma negb_inj : injective negb.
 Proof.
-Admitted.
+rewrite /injective => c d. by case c, d.
+Qed.
+
 
 Lemma ifT : b -> (if b then vT else vF) = vT.
 Proof.
-Admitted.
+by case b.
+Qed.
 
 Lemma ifF : b = false -> (if b then vT else vF) = vF.
 Proof.
-Admitted.
+by case b.
+Qed.
 
 Lemma if_same : (if b then vT else vT) = vT.
 Proof.
-Admitted.
+by case b.
+Qed.
 
 Lemma if_neg : (if ~~ b then vT else vF) = if b then vF else vT.
 Proof.
-Admitted.
+by case b.
+Qed.
 
 Lemma fun_if : f (if b then vT else vF) = if b then f vT else f vF.
 Proof.
-Admitted.
+by case b.
+Qed.
 
 Lemma if_arg (fT fF : A -> B) :
   (if b then fT else fF) x = if b then fT x else fF x.
 Proof.
-Admitted.
+by case b.
+Qed.
 
 Lemma andbK : a && b || a = a.
 Proof.
-Admitted.
+by case a, b.
+Qed.
+
 
 (** Find out what [left_id], [right_id] mean
     using Coq's interactive queries. Prove the lemmas.
  *)
 Lemma addFb : left_id false addb.    (* [addb] means XOR (eXclusive OR operation) *)
 Proof.
-Admitted.
+rewrite /left_id => c. by case c.
+Qed. 
 
 Lemma addbF : right_id false addb.
 Proof.
-Admitted.
+rewrite /right_id => c. by case c.
+Qed.
 
 Lemma addbC : commutative addb.
 Proof.
-Admitted.
+rewrite /commutative => c d. by case c, d.
+Qed.
 
 Lemma addbA : associative addb.
 Proof.
-Admitted.
+rewrite /associative => c d e. by case c, d, e.
+Qed.
 
 
 (** Formulate analogous laws (left/right identity, commutativity, associativity)
@@ -123,26 +141,32 @@ Section NaturalNumbers.
  *)
 Lemma succnK : cancel succn predn.
 Proof.
-Admitted.
+by rewrite /cancel /predn.
+Qed.
 
 Lemma add0n : left_id 0 addn.
 Proof.
-Admitted.
+rewrite /left_id => x. by case x.
+Qed.
 
 Lemma addSn m n : m.+1 + n = (m + n).+1.
 Proof.
-Admitted.
+move => //.
+Qed.
 
 Lemma add1n n : 1 + n = n.+1.
 Proof.
-Admitted.
+move => //.
+Qed.
 
 Lemma add2n m : 2 + m = m.+2.
 Proof.
-Admitted.
+move => //.
+Qed.
 
 Lemma subn0 : right_id 0 subn.
 Proof.
-Admitted.
+move => x. by case x.
+Qed.
 
 End NaturalNumbers.
