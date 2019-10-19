@@ -34,11 +34,12 @@ Proof. exact: flip. Qed.
 Lemma p_imp_np_iff_np : (A -> ~A)  <->  ~A.
 Proof.
 (* a step-by-step solution *)
-split.
+split. Check not.
 - rewrite /not. move=> a_na. move=> a. exact: (a_na a a).
 move=> na _. exact: na.
 
 Restart.
+(* split=> a_na a. apply: a_na. *)
 (* a more idiomatic solution *)
 by split=> // a_na a; apply: a_na.
 (**
@@ -93,7 +94,7 @@ case=> aaf af_a.
 (** We use [have ident : statement by tactic] form to prove [A] beforehand
     and call it [a] in the context.
   *)
-have a: A by apply: af_a=> a; apply: aaf.
+have a: A . by apply: af_a=> a; apply: aaf.
 by apply: aaf.
 Qed.
 
@@ -159,6 +160,8 @@ by case: a.
  *)
 Qed.
 
+
+
 Lemma iff_is_if_and_only_if a b :
   (a ==> b) && (b ==> a) = (a == b).
 Proof. by case: a; case: b. Qed.
@@ -193,6 +196,21 @@ Qed.
 Lemma triple_compb (f : bool -> bool) :
   f \o f \o f =1 f.
 Proof.
+case => /=.
+case Et : (f true).
+rewrite ?Et. done.
+rewrite ?Et. 
+case Ef : (f false). 
+rewrite ?Et. done.
+rewrite Ef. done.
+case Et : (f true).
+case Ef : (f false).
+rewrite ?Et. done.
+rewrite ?Ef. done.
+case Ef : (f false).
+rewrite Et Ef. done.
+rewrite ?Ef. done.
+Restart.
 by case=> /=; case Et: (f true); case Ef: (f false); rewrite ?Ef ?Et.
 Qed.
 
@@ -220,7 +238,7 @@ Proof. by []. Qed.
 
 Lemma eq_compl (f g : A -> B) (h : B -> C) :
   f =1 g -> h \o f =1 h \o g.
-Proof. by move=> eq_fg; apply: eq_comp. Qed.
+Proof.  by move=> eq_fg;  apply: eq_comp. Qed.
 
 Lemma eq_compr (f g : B -> C) (h : A -> B) :
   f =1 g -> f \o h =1 g \o h.

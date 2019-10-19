@@ -23,8 +23,22 @@ Proof.
 Print all.
 Print filter.
 
-by elim: s => //= x s IHs /andP[-> /IHs->].
+(* by elim: s => //= x s IHs /andP[-> /IHs->]. *)
+elim: s => //= x s IHs. 
+rewrite /is_true. 
+move=> /andP.
+move => [].
+move=> ->.
+move /IHs.
+move=> ->.
+done.
 Qed.
+
+About andP.
+About reflect.
+Print Bool.reflect.
+
+Search _ reflect.
 
 End MotivationalExample.
 
@@ -121,6 +135,7 @@ if one defines a new logical connective.
 (* Show Proof. *)
 
 About elimTF.
+Print elimTF.
 
 Restart.
 
@@ -139,7 +154,7 @@ Lemma special_support_for_reflect_predicates' (b c : bool) :
 Proof.
 move/andP.
 Show Proof.
-About introT.  (** [introT] view hint gets implicitly inserted *)
+About introTF.  (** [introT] view hint gets implicitly inserted *)
 exact: id.
 Qed.
 
@@ -162,7 +177,6 @@ Qed.
 Lemma eqnP_my (n m : nat) : reflect (n = m) (eqn n m).
 Proof.
 elim: n m=> [|n IHn] [|m]; try constructor=> //.
-
 move=> /=.
 
 (** Need to convert a [reflect]-based propositions into biimplications *)
@@ -177,6 +191,10 @@ How the conclusion of [iffP (IHn m)] matches with the goal:
 
 Coq infers [?Q] existential variable to be [n.+1 = m.+1]
 *)
+(* 
+apply (iffP (IHn _)).
+move => ->. done.
+apply succn_inj. *)
 by apply: (iffP (IHn _)) => [-> | /succn_inj].
 
 Restart.
@@ -198,7 +216,7 @@ done.
 done.
 Qed.
 
-
+Search "mem" "seq".
 (** A better example of using [iffP] with a non-[idP] argument *)
 Lemma nseqP (T : eqType) n (x y : T) :
   reflect (y = x /\ n > 0) (y \in nseq n x).
@@ -223,8 +241,11 @@ About maxn_idPl.
 Lemma leq_max m n1 n2 :
   (m <= maxn n1 n2) = (m <= n1) || (m <= n2).
 Proof.
+move: (leq_total n2 n1). move/orP. case=> [le_n21 | le_n12].
+Restart.
 case/orP: (leq_total n2 n1) => [le_n21 | le_n12].
 
+Check (@maxn_idPl n1 n2).
 rewrite (maxn_idPl le_n21).
 
 (** Why does this work?
@@ -238,6 +259,7 @@ Check (maxn_idPl le_n21).   (** [elimT] get implicitly inserted *)
 Unset Printing Coercions.
 
 About elimT.
+About elimTF.
 
 (** [elimT] is a coercion from [reflect] to [Funclass],
     This means it gets inserted when one uses a reflect view as a function.
@@ -254,6 +276,8 @@ Abort.
 
 (** [all] specification *)
 About allP.
+Locate "\in".
+About in_mem.
 (**
     forall (T : eqType) (a : pred T) (s : seq T),
     reflect {in s, forall x : T, a x} (all a s)
@@ -272,9 +296,13 @@ Example for_ltngtP m n :
 Proof.
 by case: ltngtP.
 
-Restart.
+Restart. add
 
 case: ltngtP.
+move=> /=.
+done.
+done.
+done.
 Abort.
 
 
@@ -298,7 +326,8 @@ Qed.
 
 (** One more example *)
 Lemma maxnC : commutative maxn.
-Proof. by move=> m n; rewrite /maxn; case: ltngtP. Qed.
+(* Proof . move => m n. rewrite / maxn. case : ltngtP.  done. done. done. *)
+Proof.  by move=> m n; rewrite /maxn; case: ltngtP. Qed.
 
 End Trichotomy.
 

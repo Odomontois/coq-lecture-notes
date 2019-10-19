@@ -9,16 +9,19 @@ Variables A B C : Prop.
 
 Lemma notTrue_iff_False : (~ True) <-> False.
 Proof.
-Admitted.
+split => //.
+Qed.
 
 Lemma dne_False : ~ ~ False -> False.
 Proof.
-Admitted.
+by move => f; apply f.
+Qed.
 (* dne_False = @^~ id *)
 
-Lemma dne_True : ~ ~ True -> True.
+Lemma dne_True : ~ ~ True -> True. 
 Proof.
-Admitted.
+by move => _.
+Qed.
 
 Lemma weak_peirce : ((((A -> B) -> A) -> A) -> B) -> B.
 Proof.
