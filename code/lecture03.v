@@ -114,7 +114,7 @@ rewrite /LEM /Frobenius2.
 move=> lem.
 move=> A P Q.
 split.
-- move=> all_qpx.
+- move=> all_qpx.  
   case: (lem Q); first by move=> q; left.
   move=> nq. right. move=> x.
   case: (all_qpx x); first by move/nq.
@@ -139,6 +139,7 @@ Module MyExistential.
 
 Inductive ex_my (A : Type) (P : A -> Prop) : Prop :=
 | ex_intro (x : A) (proof : P x).
+
 
 (** Simplified notation *)
 Notation "’exists’ x : A , p" := (ex (fun x : A => p))
@@ -256,7 +257,8 @@ Qed.
 
 Lemma pair_inj A B (a1 a2 : A) (b1 b2 : B) :
   (a1, b1) = (a2, b2) -> (a1 = a2) /\ (b1 = b2).
-Proof. by case=> ->->. Qed.
+Proof.
+by case=> ->->. Qed.
 
 
 
@@ -290,7 +292,7 @@ Qed.
 
 (** * How does induction work? *)
 
-Check nat_ind.
+Check eq_rect.
 
 Definition nat_ind_my
   : forall P : nat -> Prop,
