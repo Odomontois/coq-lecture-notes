@@ -14,9 +14,9 @@ Lemma drinker_paradox (P : nat -> Prop) :
   exists x, P x -> forall y, P y.
 Proof.
 apply DNE => Hp. 
-have : forall n, P n => n.
- - apply DNE => nP. case Hp. exists n => Pn. case (nP Pn).
-apply Hp. exists 0 => _ m. apply n.
+have aP : forall n, P n . 
+ - move => n. apply DNE => nP. case Hp. exists n => Pn. case (nP Pn).
+apply Hp. exists 0 => _ m. apply aP.
 Qed. 
 
 
@@ -47,7 +47,10 @@ Section Arithmetics.
 Lemma min_plus_r  n m p  :
   minn n m = n -> minn n (m + p) = n.
 Proof.
-Admitted.
+move/minn_idPl => mn.
+apply /minn_idPl.
+apply (leq_trans mn), leq_addr.
+Qed.
 
 Lemma min_plus_minus m n p :
   minn n m + minn (n - m) p = minn n (m + p).
