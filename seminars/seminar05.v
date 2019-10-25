@@ -23,38 +23,67 @@ Variables (T : Type) (def : T).
 
 (** Define the leftpad function, modeling strings as sequences of elements of type [T] *)
 
-Definition leftpad (c : T) (n : nat) (s : seq T) : seq T. Admitted.
+Locate "++".
+About ncons.
+
+Compute (nseq 3 5 ++ nseq 2 6).
+
+Definition leftpad (c : T) (n : nat) (s : seq T) : seq T :=
+  ncons (n - size s) c s.
+  
+
+Search "addnC".
 
 (** The following properties of the leftpad function *)
 
 Lemma length_max_spec c n s :
   size (leftpad c n s) = maxn n (size s).
 Proof.
-Admitted.
+  by rewrite size_ncons maxnC maxnE addnC.
+Qed.
+
+
+
 
 (** Local alias for the [nth] function returning the n-th element of the input sequence *)
 Local Notation nth := (nth def).
 
+Search "nth".
+
 Lemma prefix_spec c n s :
   forall i, i < n - size s -> nth (leftpad c n s) i = c.
 Proof.
-Admitted.
+move => m Ihm. by rewrite nth_ncons Ihm.
+Qed.
+
+Search "lt" "add".
 
 Lemma suffix_spec c n s :
   forall i, i < size s -> nth (leftpad c n s) (n - size s + i) = nth s i.
 Proof.
-Admitted.
+move => i Ihm. rewrite nth_ncons.  
+               have : ((n - size s) + 0 = (n - size s)) . 
+               by rewrite addn0. move => Ihs. 
+               rewrite <- Ihs at 2.
+               rewrite ltn_add2l.
+               simpl.
+               have: (n - size s + i - (n - size s)) = i.
+               by rewrite addKn.
+               move => Ihi.
+               by rewrite Ihi.
+Qed.
 
 End LeftPad.
-
+(* = [:: 1; 2; 3]  *)
 
 
 Section MoreInductionExercises.
 
 (** Implement a recursive function performing integer division by 2 *)
-Fixpoint div2 (n : nat) : nat. Admitted.
+Fixpoint div2 (n : nat) : nat := 
+  if n is m.+1.+1 then (div2 m).+1 else 0. 
 (* You might want to uncomment the following: *)
-(* Arguments div2 : simpl nomatch. *)
+Arguments div2 : simpl nomatch.
 
 Lemma nat_ind2' (P : nat -> Prop) :
   P 0 ->

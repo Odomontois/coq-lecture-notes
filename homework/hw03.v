@@ -13,7 +13,14 @@ Variable DNE : forall A : Prop, ~ ~ A -> A.
 Lemma drinker_paradox (P : nat -> Prop) :
   exists x, P x -> forall y, P y.
 Proof.
-Admitted.
+apply DNE => Hp. 
+have aP : forall n, P n . 
+ - move => n. apply DNE => nP. case Hp. exists n => Pn. case (nP Pn).
+apply Hp. exists 0 => _ m. apply aP.
+Qed. 
+
+
+  
 
 (* This closes the section, discharging over DNE *)
 End Classical_reasoning.
@@ -40,10 +47,14 @@ Section Arithmetics.
 Lemma min_plus_r  n m p  :
   minn n m = n -> minn n (m + p) = n.
 Proof.
-Admitted.
+move/minn_idPl => mn.
+apply /minn_idPl.
+apply (leq_trans mn), leq_addr.
+Qed.
 
 Lemma min_plus_minus m n p :
   minn n m + minn (n - m) p = minn n (m + p).
+  
 Proof.
 Admitted.
 
@@ -54,7 +65,8 @@ Fixpoint zero (n : nat) : nat :=
 Lemma zero_returns_zero n :
   zero n = 0.
 Proof.
-Admitted.
+elim n => //.
+Qed.
 
 (**
 Claim: every amount of postage that is at least 12 cents can be made
@@ -125,6 +137,7 @@ Definition epic (f : A -> B) :=
 
 Lemma surj_epic f : surjective f -> epic f.
 Proof.
+case => f_1 Hfg C g1 g2. Search _ id. rewrite [g1] 
 Admitted.
 
 Lemma epic_surj f : epic f -> surjective f.
