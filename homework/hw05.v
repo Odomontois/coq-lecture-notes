@@ -14,7 +14,11 @@ Variant eq_xor_neq (T : eqType) (x y : T) : bool -> bool -> Set :=
 Lemma eqVneq (T : eqType) (x y : T) :
   eq_xor_neq x y (y == x) (x == y).
 Proof.
-Admitted.
+rewrite eq_sym.
+case E : (x == y) ; constructor. 
+apply/eqP. exact E. 
+by rewrite /negb E.
+Qed. 
 
 (* Use eqVneq to prove the following lemma.
    Hint: use [case: eqVneq] *)
@@ -22,12 +26,14 @@ Lemma eqVneq_example (T : eqType) (w x y z : T) :
   w == x -> z == y ->
   (x == w) /\ (y == z) /\ (z == y).
 Proof.
-Admitted.
+case:  (eqVneq w x) => //.
+case:  (eqVneq z y) => //.
+Qed.
 
 Lemma andX (a b : bool) : reflect (a * b) (a && b).
 Proof.
-Admitted.
-
+by case: a ; case b => /=; constructor => //; case. 
+Qed.
 Arguments andX {a b}.
 
 (** Solve the following lemma using [andX] lemma
@@ -35,7 +41,9 @@ Arguments andX {a b}.
 Lemma andX_example a b :
   a && b -> b && a && a && b.
 Proof.
-Admitted.
+move/andX. by case => ->->.
+Qed.
+
 
 (* one can rewrite with andX *)
 
