@@ -85,7 +85,8 @@ Qed.
 Theorem rev_iter_correct A (l : seq A) :
   rev l = rev_rec l.
 Proof.
-Admitted.
+by rewrite /rev rev_correct cats0.
+Qed.
 
 Fixpoint map_iter' {A B}
     (f : A -> B) (l : seq A) (acc : seq B) : seq B :=
@@ -97,12 +98,20 @@ Definition map_iter {A B} (f : A -> B) l := map_iter' f l [::].
 Lemma map_iter'_correct A B (f : A -> B) l1 l2 :
   map_iter' f l1 l2 = rev l2 ++ (map f l1).
 Proof.
-Admitted.
+move : l2.
+elim l1 => //=. 
+ - by move => l2 ;rewrite cats0.
+ - move => a l Hi l2. 
+   rewrite Hi - cat1s rev_cat /(rev [:: f a]) => /=. 
+   by rewrite - catA cat_cons cat0s.
+Qed.
 
 Theorem map_iter_correct A B (f : A -> B) l :
   map_iter f l = map f l.
 Proof.
-Admitted.
+by rewrite /map_iter map_iter'_correct .
+Qed.
+
 
 Inductive expr : Type :=
 | Const of nat
@@ -125,12 +134,18 @@ Definition eval_expr_iter e := eval_expr_iter' e 0.
 Lemma eval_expr_iter'_correct e acc :
   eval_expr_iter' e acc = acc + eval_expr e.
 Proof.
-Admitted.
+move : acc.
+elim e => /=.
+  - move => n acc. by rewrite addnC.
+  - move => d0 Hi1 e1 Hi2 acc. 
+    by rewrite Hi1 Hi2 addnA.
+Qed.
 
 Theorem eval_expr_iter_correct e :
   eval_expr_iter e = eval_expr e.
 Proof.
-Admitted.
+by rewrite /eval_expr_iter eval_expr_iter'_correct.
+Qed.
 
 Fixpoint eval_expr_cont' {A} (e : expr) (k : nat -> A) : A :=
   match e with
@@ -145,12 +160,16 @@ Definition eval_expr_cont (e : expr) : nat :=
 Lemma eval_expr_cont'_correct A e (k : nat -> A) :
   eval_expr_cont' e k = k (eval_expr e).
 Proof.
-Admitted.
+move : k.
+elim e => //= => e0 Hi1 e1 Hi2 k.
+by rewrite Hi2 Hi1.
+Qed.
 
 Theorem eval_expr_cont_correct e :
   eval_expr_cont e = eval_expr e.
 Proof.
-Admitted.
+by rewrite /eval_expr_cont eval_expr_cont'_correct.
+Qed.
 
 Inductive instr := Push (n : nat) | Add.
 
@@ -179,14 +198,25 @@ Fixpoint compile (e : expr) : prog :=
 Lemma run_append p1 p2 s :
   run (p1 ++ p2) s = run p2 (run p1 s).
 Proof.
-Admitted.
+move : p2 s.
+elim p1 => //=.
+Qed.
+
+
 
 Lemma compile_correct_generalized e s :
   run (compile e) s = (eval_expr e) :: s.
 Proof.
-Admitted.
+move : s.
+elim e => //= => e0 Hi1 e1 Hi2 s.
+by rewrite !run_append Hi1 Hi2 /run.
+Qed.
+
 
 Theorem compile_correct e :
   run (compile e) [:: ] = [:: eval_expr e].
 Proof.
-Admitted.
+apply compile_correct_generalized.
+Qed.
+
+
