@@ -18,9 +18,16 @@ Variant alt_spec (P : Prop) (b : bool) : bool -> Type :=
   | AltTrue  of     P : alt_spec P b true
   | AltFalse of  ~~ b : alt_spec P b false.
 
+Print alt_spec.
+
 Lemma altP P b :
   reflect P b -> alt_spec P b b.
 Proof.
+move => Pb.
+case : b / Pb.
+by constructor.
+by constructor.
+Restart.
 by move=> Pb; case: b / Pb; constructor.
 Qed.
 
@@ -34,6 +41,9 @@ Proof.
 move=> H.
 case: H.  (* Does not work *)
 case: y /.
+Undo.
+move=> x_eq_y.
+case: y / x_eq_y.
 done.
 Qed.
 
@@ -60,6 +70,7 @@ case: (altP eqP).
 by constructor.
 Qed.
 
+Print idP.
 
 (** [apply/view1/view2] idiom:
     Proving equality of booleans by proving
@@ -77,15 +88,18 @@ Goal forall b c,
   ~~ b = b && c.
 Proof.
 move=> b c.
+(* apply/negP/andP. *)
 apply/negP/andP.
+admit.
+case.
 Abort.
 
 End BooleanReflection.
 
-
+Print Equality.
 
 (* === SLIDES === *)
-
+Compute (1, true) == (1, true).
 
 Module ProductEquality.
 
@@ -97,6 +111,8 @@ Fail
 Set Printing All.
 Check (1, true) == (2, true).
 Unset Printing All.
+Check (1, true) == (2, true).
+
 
 End ProductEquality.
 
@@ -252,7 +268,9 @@ Definition eq_op T :=
   Equality.op (Equality.class T).
 
 Lemma eqP T : Equality.axiom (@eq_op T).
-Proof. by case: T => ? []. Qed.
+Proof. 
+(* case : T. move => ?. case. move => ? ?. done. *)
+by case: T => ? []. Qed.
 Arguments eqP {T x y}.
 
 Delimit Scope eq_scope with EQ.

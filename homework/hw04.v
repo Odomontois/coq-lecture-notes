@@ -22,15 +22,27 @@ Fixpoint sum_iter' (l : seq nat) (acc : nat) : nat :=
 Definition sum_iter (l : seq nat) : nat :=
   sum_iter' l 0.
 
+Lemma sum_iter'_additive l x y: 
+  sum_iter' l (x + y) = sum_iter' l x + y.
+Proof.
+move : x y.
+elim l => //= => a l1 Hi x y. rewrite addnA. apply Hi.
+Qed.
+
+
 Lemma sum_iter'_correct l x0 :
   sum_iter' l x0 = x0 + sum l.
 Proof.
-Admitted.
+move: x0.
+elim l => /= => x0. by rewrite addn0. 
+- move => a Ih x1 => /=. by rewrite Ih addnA (addnC x0 x1). 
+Qed.
 
 Theorem sum_iter_correct l :
   sum_iter l = sum l.
 Proof.
-Admitted.
+  by rewrite /sum_iter sum_iter'_correct. 
+Qed.
 
 
 (** Continuation-passing style
@@ -46,12 +58,16 @@ Definition sum_cont (l : seq nat) : nat :=
 Lemma sum_cont'_correct A l (k : nat -> A) :
   sum_cont' l k = k (sum l).
 Proof.
-Admitted.
+move: k.
+elim l => //= => a l0 Hi k. by rewrite Hi.
+Qed.
 
 Theorem sum_cont_correct l :
   sum_cont l = sum l.
 Proof.
-Admitted.
+by rewrite /sum_cont sum_cont'_correct.
+Qed.
+
 
 Fixpoint rev_rec {A : Type} (xs : seq A) : seq A :=
   if xs is (x::xs') then
@@ -61,7 +77,10 @@ Fixpoint rev_rec {A : Type} (xs : seq A) : seq A :=
 Lemma rev_correct A (l1 l2 : seq A) :
   catrev l1 l2 = rev_rec l1 ++ l2.
 Proof.
-Admitted.
+move : l2.
+elim l1 => //= => a l Hi l2. 
+  by rewrite Hi - catA => /=.
+Qed.
 
 Theorem rev_iter_correct A (l : seq A) :
   rev l = rev_rec l.
