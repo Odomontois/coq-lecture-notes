@@ -60,20 +60,30 @@ Lemma foldr_fusion {A B C} (f : A -> B -> B) (v : B)
   (forall x y, h (g x y) = f x (h y)) ->
   (h \o foldr g w) =1 foldr f v.
 Proof.
-Admitted.
+move=> Ehv Ehf l. rewrite /funcomp.
+elim l => //=.
+move => a l0 Hi.
+by rewrite - Hi - Ehf.
+Qed.
 
 Definition flip {A B C} (f : A -> B -> C) := fun x y => f y x.
 
 Lemma foldl_via_foldr A B (f : B -> A -> B) :
   flip (foldr (fun x rec => rec \o (flip f x)) id) =2 foldl f.
 Proof.
-Admitted.
-
+move => v l. elim: l v => //=. move => x l0 Hi y. 
+by rewrite - Hi.
+Qed.
 
 Lemma foldl_via_foldr2 {A B} (f : B -> A -> B) v :
   (foldr (flip f) v) \o rev =1 foldl f v.
 Proof.
-Admitted.
+move => l. elim : l v => //= => a l1 Hi v.
+by rewrite - (Hi) -cat1s rev_cat foldr_cat.
+Qed.  
+
+
+
 
 
 (* Let's generalize left and right folds over lists.
@@ -94,12 +104,15 @@ Definition foldk {A B : Type} (f : A -> B -> (B -> B) -> B) :=
 Lemma foldr_via_foldk A B (f : A -> B -> B) :
   foldk (fun a b k => f a (k b)) =2 foldr f.
 Proof.
-Admitted.
+  move => v l. elim: l v => //= => a l Hi v.
+  by rewrite - Hi.
+Qed.
 
 Lemma foldl_via_foldk A B (f : B -> A -> B) :
   foldk (fun a b k => k (f b a)) =2 foldl f.
 Proof.
-Admitted.
+  move => v l. by elim: l v.
+Qed. 
 
 End RecursionSchemes.
 
