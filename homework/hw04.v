@@ -22,15 +22,27 @@ Fixpoint sum_iter' (l : seq nat) (acc : nat) : nat :=
 Definition sum_iter (l : seq nat) : nat :=
   sum_iter' l 0.
 
+Lemma sum_iter'_additive l x y: 
+  sum_iter' l (x + y) = sum_iter' l x + y.
+Proof.
+move : x y.
+elim l => //= => a l1 Hi x y. rewrite addnA. apply Hi.
+Qed.
+
+
 Lemma sum_iter'_correct l x0 :
   sum_iter' l x0 = x0 + sum l.
 Proof.
-Admitted.
+move: x0.
+elim l => /= => x0. by rewrite addn0. 
+- move => a Ih x1 => /=. by rewrite Ih addnA (addnC x0 x1). 
+Qed.
 
 Theorem sum_iter_correct l :
   sum_iter l = sum l.
 Proof.
-Admitted.
+  by rewrite /sum_iter sum_iter'_correct. 
+Qed.
 
 
 (** Continuation-passing style
@@ -46,12 +58,16 @@ Definition sum_cont (l : seq nat) : nat :=
 Lemma sum_cont'_correct A l (k : nat -> A) :
   sum_cont' l k = k (sum l).
 Proof.
-Admitted.
+move: k.
+elim l => //= => a l0 Hi k. by rewrite Hi.
+Qed.
 
 Theorem sum_cont_correct l :
   sum_cont l = sum l.
 Proof.
-Admitted.
+by rewrite /sum_cont sum_cont'_correct.
+Qed.
+
 
 Fixpoint rev_rec {A : Type} (xs : seq A) : seq A :=
   if xs is (x::xs') then
@@ -61,12 +77,16 @@ Fixpoint rev_rec {A : Type} (xs : seq A) : seq A :=
 Lemma rev_correct A (l1 l2 : seq A) :
   catrev l1 l2 = rev_rec l1 ++ l2.
 Proof.
-Admitted.
+move : l2.
+elim l1 => //= => a l Hi l2. 
+  by rewrite Hi - catA => /=.
+Qed.
 
 Theorem rev_iter_correct A (l : seq A) :
   rev l = rev_rec l.
 Proof.
-Admitted.
+by rewrite /rev rev_correct cats0.
+Qed.
 
 Fixpoint map_iter' {A B}
     (f : A -> B) (l : seq A) (acc : seq B) : seq B :=
@@ -78,12 +98,20 @@ Definition map_iter {A B} (f : A -> B) l := map_iter' f l [::].
 Lemma map_iter'_correct A B (f : A -> B) l1 l2 :
   map_iter' f l1 l2 = rev l2 ++ (map f l1).
 Proof.
-Admitted.
+move : l2.
+elim l1 => //=. 
+ - by move => l2 ;rewrite cats0.
+ - move => a l Hi l2. 
+   rewrite Hi - cat1s rev_cat /(rev [:: f a]) => /=. 
+   by rewrite - catA cat_cons cat0s.
+Qed.
 
 Theorem map_iter_correct A B (f : A -> B) l :
   map_iter f l = map f l.
 Proof.
-Admitted.
+by rewrite /map_iter map_iter'_correct .
+Qed.
+
 
 Inductive expr : Type :=
 | Const of nat
@@ -106,12 +134,18 @@ Definition eval_expr_iter e := eval_expr_iter' e 0.
 Lemma eval_expr_iter'_correct e acc :
   eval_expr_iter' e acc = acc + eval_expr e.
 Proof.
-Admitted.
+move : acc.
+elim e => /=.
+  - move => n acc. by rewrite addnC.
+  - move => d0 Hi1 e1 Hi2 acc. 
+    by rewrite Hi1 Hi2 addnA.
+Qed.
 
 Theorem eval_expr_iter_correct e :
   eval_expr_iter e = eval_expr e.
 Proof.
-Admitted.
+by rewrite /eval_expr_iter eval_expr_iter'_correct.
+Qed.
 
 Fixpoint eval_expr_cont' {A} (e : expr) (k : nat -> A) : A :=
   match e with
@@ -126,12 +160,16 @@ Definition eval_expr_cont (e : expr) : nat :=
 Lemma eval_expr_cont'_correct A e (k : nat -> A) :
   eval_expr_cont' e k = k (eval_expr e).
 Proof.
-Admitted.
+move : k.
+elim e => //= => e0 Hi1 e1 Hi2 k.
+by rewrite Hi2 Hi1.
+Qed.
 
 Theorem eval_expr_cont_correct e :
   eval_expr_cont e = eval_expr e.
 Proof.
-Admitted.
+by rewrite /eval_expr_cont eval_expr_cont'_correct.
+Qed.
 
 Inductive instr := Push (n : nat) | Add.
 
@@ -160,14 +198,25 @@ Fixpoint compile (e : expr) : prog :=
 Lemma run_append p1 p2 s :
   run (p1 ++ p2) s = run p2 (run p1 s).
 Proof.
-Admitted.
+move : p2 s.
+elim p1 => //=.
+Qed.
+
+
 
 Lemma compile_correct_generalized e s :
   run (compile e) s = (eval_expr e) :: s.
 Proof.
-Admitted.
+move : s.
+elim e => //= => e0 Hi1 e1 Hi2 s.
+by rewrite !run_append Hi1 Hi2 /run.
+Qed.
+
 
 Theorem compile_correct e :
   run (compile e) [:: ] = [:: eval_expr e].
 Proof.
-Admitted.
+apply compile_correct_generalized.
+Qed.
+
+

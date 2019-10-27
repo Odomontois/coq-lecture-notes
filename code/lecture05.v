@@ -28,7 +28,8 @@ elim: s => //= x s IHs.
 rewrite /is_true.
 move=> /andP.
 (* Set Printing Coercions. *)
-rewrite /is_true.
+rewrite /is_true.rewrite /xy.
+
 move=> [].
 move=> ->.
 move/IHs.
